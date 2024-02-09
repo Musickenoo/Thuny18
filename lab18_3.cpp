@@ -8,9 +8,10 @@
 using namespace std;
 
 struct student{
-
-    //Define struct student with four member (name ,id , gender, gpa);
-    
+	string name;
+	int id;
+	char gender;
+	float gpa;
 };
 
 struct course{
@@ -20,7 +21,7 @@ struct course{
 	vector<student *> student_list;
 };
 
-student * findstudent(vector<student> allstudents,int key){ //There is something wrong in this line.
+student * findstudent(vector<student> &allstudents,int key){ 
 	for(unsigned int i = 0; i < allstudents.size(); i++){
 		if(allstudents[i].id  == key) return &allstudents[i];
 	}
@@ -61,13 +62,26 @@ int main(){
 	
 	string textline;
 	
-	while(getline(student_file,textline)){
-		student s; 
-		
-		//Use sscanf() to split the values in textline and assign those values to the members of struct s;
+	while (getline(student_file, textline)) {
+    student *s = new student;
+    int pos = textline.find_first_of(",");
 
-		allstudents.push_back(s); 		
-	}
+    s->name = textline.substr(0, pos);
+    textline.erase(0, pos + 1);
+
+    pos = textline.find_first_of(",");
+    s->id = stoi(textline.substr(0, pos));
+    textline.erase(0, pos + 1);
+
+    pos = textline.find_first_of(",");
+    s->gender = textline[0];
+    textline.erase(0, pos + 1);
+
+    s->gpa = stof(textline);
+    
+    allstudents.push_back(*s); // เพิ่มข้อมูล student เข้าไปใน vector
+}
+
 	
 	int state = 1;
 	while(getline(course_file,textline)){
@@ -83,17 +97,18 @@ int main(){
 			if(textline == "> Students"){
 				state = 3;
 			}else{
-			
-			    //Append (push_back) textline to lecture_list[] of the recently added course in allcourses[];
-			    
-			}			
+				if (allcourses.at(0).lecture_list.size() < 4) allcourses.at(0).lecture_list.push_back(textline);
+				else if (allcourses.at(1).lecture_list.size() < 1) allcourses.at(1).lecture_list.push_back(textline);
+				else allcourses.at(2).lecture_list.push_back(textline);
+			}		
 		}else{
 			if(textline == "---------------------------------------"){
 				state = 1;
 			}else{
 				student *p = findstudent(allstudents,atof(textline.c_str()));
-				
-				//Append (push_back) p to student_list of the recently added course in allcourses[];
+				if (allcourses[0].student_list.size() < 10) allcourses[0].student_list.push_back(p);
+				else if (allcourses[1].student_list.size() < 9) allcourses[1].student_list.push_back(p);
+				else allcourses[2].student_list.push_back(p);
 				
 			}
 		}
